@@ -17,6 +17,14 @@ namespace AzureDevOpsListHistoricPRs
 {
     public class AzDOInteraction
     {
+
+    string pat = string.Empty;
+
+    public AzDOInteraction(string PAT)
+    {
+        this.pat = PAT;    
+    }
+
         /// <summary>
         /// Retrieves all Pull Requests from a repository
         /// Documentation: https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/get-pull-requests?view=azure-devops-rest-7.1&tabs=HTTP#pullrequeststatus
@@ -26,7 +34,7 @@ namespace AzureDevOpsListHistoricPRs
         /// <param name="RepositoryID">The repository ID. Can be obtained by az repos list --project "PROJECTNAME"</param>
         /// <param name="PAT">The Personal Access Token , from the Azure DevOps UI</param>
         /// <returns></returns>
-        public async Task<Rootobject>? GetAllPullRequestsAsync(string organization, string project, string RepositoryID, string PAT)
+        public async Task<ListOfPullRequests>? GetAllPullRequestsAsync(string organization, string project, string RepositoryID)
         {
             string responseBody = string.Empty;
 
@@ -40,7 +48,7 @@ namespace AzureDevOpsListHistoricPRs
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
                         Convert.ToBase64String(
                             System.Text.ASCIIEncoding.ASCII.GetBytes(
-                                string.Format("{0}:{1}", "", PAT))));
+                                string.Format("{0}:{1}", "", pat))));
                                        
                     string callURL = string.Format("https://dev.azure.com/{0}/_apis/git/repositories/{1}/pullrequests?searchCriteria.status={2}", organization, RepositoryID, "all");
 
@@ -56,7 +64,7 @@ namespace AzureDevOpsListHistoricPRs
                 Console.WriteLine(ex.ToString());
             }
 
-            Rootobject? ListOfPRs = JsonSerializer.Deserialize<Rootobject>(responseBody);
+            ListOfPullRequests? ListOfPRs = JsonSerializer.Deserialize<ListOfPullRequests>(responseBody);
 
             if (ListOfPRs == null)
             {
@@ -65,8 +73,50 @@ namespace AzureDevOpsListHistoricPRs
             else
             {
                 return ListOfPRs;
-            }
-            
+            }            
         }
+
+        public async Task<PullRequest> GetPullRequestDetailsAsync(string organization, int PRID)
+        {
+            string responseBody = string.Empty;
+
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                        Convert.ToBase64String(
+                            System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                string.Format("{0}:{1}", "", pat))));
+                                       
+                    //string callURL = string.Format("https://dev.azure.com/{0}/_apis/git/pullrequests/{1}?api-version=7.1-preview.1", organization, PRID);
+                    string callURL = string.Format("https://dev.azure.com/{0}/_apis/git/pullrequests/{1}?", organization, PRID);
+
+                    using (HttpResponseMessage response = await client.GetAsync(callURL))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        responseBody = await response.Content.ReadAsStringAsync();                  
+                    }                
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            var pullRequest = JsonSerializer.Deserialize<PullRequest>(responseBody);
+
+            if (pullRequest == null)
+            {
+                throw new Exception("Could not deserialize the response from Azure DevOps.");
+            }
+            else
+            {
+                return pullRequest;
+            }     
     }
+}
 }

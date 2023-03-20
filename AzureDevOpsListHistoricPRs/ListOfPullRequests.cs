@@ -10,7 +10,7 @@ namespace AzureDevOpsListHistoricPRs
     /// <summary>
     /// Rootobject for the JSON Resultset. All code has been generated from "Paste JSON as Class"
     /// </summary>
-    public class Rootobject
+    public class ListOfPullRequests
     {
         public Value[] value { get; set; }
         public int count { get; set; }

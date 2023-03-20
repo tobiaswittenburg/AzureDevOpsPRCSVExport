@@ -13,48 +13,45 @@ string PAT = string.Empty;
 string ProjectName = string.Empty;
 string Organization = string.Empty;
 string RepositoryID = string.Empty;
+string OutputFilePath = string.Empty;
 
-var PRs = new Rootobject();
+var PRs = new ListOfPullRequests();
 
-var azureDevOpsInteraction = new AzDOInteraction();
-
-if (args.Length == 4)
+if (args.Length == 5)
 {
     PAT = args[0];
     ProjectName = args[1];
     Organization = args[2];
     RepositoryID = args[3];
+    OutputFilePath = args[4];
 
     Console.WriteLine("PAT: " + PAT);
     Console.WriteLine("ProjectName: "+ ProjectName);
     Console.WriteLine("Organization: " + Organization);
     Console.WriteLine("RepositoryID: " + RepositoryID);
+    Console.WriteLine("OutputFilePath: " + OutputFilePath);
 }
 else 
 {
     Console.WriteLine("Please use the following order for arguments: PAT, ProjectName, Organization, RepositoryID");
 }
 
+var azureDevOpsInteraction = new AzDOInteraction(PAT);
 
 try
 {
-    PRs = await azureDevOpsInteraction.GetAllPullRequestsAsync(Organization, ProjectName, RepositoryID, PAT);
+    PRs = await azureDevOpsInteraction.GetAllPullRequestsAsync(Organization, ProjectName, RepositoryID);
 }
 catch (Exception ex)
 {
     Console.WriteLine("Error: " + ex.Message);
 }
 
-var ResultList = new List<ResultObject>();
-
 foreach(Value v in PRs.value)
 {
-    ResultList.Add(new ResultObject(v.pullRequestId, v.description));
-}
+    PullRequest pr = await azureDevOpsInteraction.GetPullRequestDetailsAsync(Organization, v.pullRequestId);
 
-foreach (ResultObject result in ResultList)
-{
-    string csv = string.Format("{0},{1}\n", result.ID, result.Description);
-    File.AppendAllText(@"C:\Temp\PRs.csv", csv);
+    string csv = string.Format("{0},{1},{2}\n", v.pullRequestId, pr.lastMergeCommit.comment, v.description);
+    File.AppendAllText(OutputFilePath, csv);
 }
 
