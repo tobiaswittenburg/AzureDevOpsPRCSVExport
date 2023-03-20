@@ -1,0 +1,8 @@
+﻿################################################################################
+# Diese .gitignore-Datei wurde von Microsoft(R) Visual Studio automatisch erstellt.
+################################################################################
+
+/.vs/AzureDevOpsListHistoricPRs
+/.vs/AzureDevOpsPRCSVExport/v17
+/.vs
+/AzureDevOpsListHistoricPRs/obj/Release/net7.0
