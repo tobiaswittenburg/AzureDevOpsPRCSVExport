@@ -58,7 +58,15 @@ namespace AzureDevOpsListHistoricPRs
 
             Rootobject? ListOfPRs = JsonSerializer.Deserialize<Rootobject>(responseBody);
 
-            return ListOfPRs;
+            if (ListOfPRs == null)
+            {
+                throw new Exception("Could not deserialize the response from Azure DevOps.");
+            }
+            else
+            {
+                return ListOfPRs;
+            }
+            
         }
     }
 }

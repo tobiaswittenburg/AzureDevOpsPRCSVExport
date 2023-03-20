@@ -9,14 +9,41 @@ using System.Collections.Generic;
 
 Console.WriteLine("Sample console application to get all Pull Requests from a repository.!");
 
-var PAT = string.Empty;
-var ProjectName = string.Empty;
-var Organization = string.Empty;
-var RepositoryID = string.Empty;
+string PAT = string.Empty;
+string ProjectName = string.Empty;
+string Organization = string.Empty;
+string RepositoryID = string.Empty;
+
+var PRs = new Rootobject();
 
 var azureDevOpsInteraction = new AzDOInteraction();
 
-var PRs = await azureDevOpsInteraction.GetAllPullRequestsAsync(Organization, ProjectName, RepositoryID, PAT);
+if (args.Length == 4)
+{
+    PAT = args[0];
+    ProjectName = args[1];
+    Organization = args[2];
+    RepositoryID = args[3];
+
+    Console.WriteLine("PAT: " + PAT);
+    Console.WriteLine("ProjectName: "+ ProjectName);
+    Console.WriteLine("Organization: " + Organization);
+    Console.WriteLine("RepositoryID: " + RepositoryID);
+}
+else 
+{
+    Console.WriteLine("Please use the following order for arguments: PAT, ProjectName, Organization, RepositoryID");
+}
+
+
+try
+{
+    PRs = await azureDevOpsInteraction.GetAllPullRequestsAsync(Organization, ProjectName, RepositoryID, PAT);
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Error: " + ex.Message);
+}
 
 var ResultList = new List<ResultObject>();
 
