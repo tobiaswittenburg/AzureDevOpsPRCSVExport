@@ -9,4 +9,15 @@
 /AzureDevOpsListHistoricPRs/obj/Debug/net7.0
 /AzureDevOpsListHistoricPRs/bin
 /AzureDevOpsListHistoricPRs/bin/Debug/net7.0
+/.vscode
 
+*.suo
+*.user
+bin
+obj
+packages
+*.pdb
+*.exe
+*.dll
+.cache
+.editorconfig

@@ -60,9 +60,5 @@ namespace AzureDevOpsListHistoricPRs
 
             return ListOfPRs;
         }
-
-
-
-
     }
 }
