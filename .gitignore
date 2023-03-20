@@ -5,4 +5,8 @@
 /.vs/AzureDevOpsListHistoricPRs
 /.vs/AzureDevOpsPRCSVExport/v17
 /.vs
-/AzureDevOpsListHistoricPRs/obj/Release/net7.0
+/AzureDevOpsListHistoricPRs/obj
+/AzureDevOpsListHistoricPRs/obj/Debug/net7.0
+/AzureDevOpsListHistoricPRs/bin
+/AzureDevOpsListHistoricPRs/bin/Debug/net7.0
+
