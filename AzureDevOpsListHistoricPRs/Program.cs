@@ -14,22 +14,25 @@ string ProjectName = string.Empty;
 string Organization = string.Empty;
 string RepositoryID = string.Empty;
 string OutputFilePath = string.Empty;
+string PRStatus = string.Empty;
 
 var PRs = new ListOfPullRequests();
 
-if (args.Length == 5)
+if (args.Length == 6)
 {
     PAT = args[0];
     ProjectName = args[1];
     Organization = args[2];
     RepositoryID = args[3];
     OutputFilePath = args[4];
+    PRStatus = args[5];
 
     Console.WriteLine("PAT: " + PAT);
     Console.WriteLine("ProjectName: "+ ProjectName);
     Console.WriteLine("Organization: " + Organization);
     Console.WriteLine("RepositoryID: " + RepositoryID);
     Console.WriteLine("OutputFilePath: " + OutputFilePath);
+    Console.WriteLine("PRStatus: " + PRStatus);
 }
 else 
 {
@@ -40,7 +43,7 @@ var azureDevOpsInteraction = new AzDOInteraction(PAT);
 
 try
 {
-    PRs = await azureDevOpsInteraction.GetAllPullRequestsAsync(Organization, ProjectName, RepositoryID);
+    PRs = await azureDevOpsInteraction.GetAllPullRequestsAsync(Organization, ProjectName, RepositoryID, PRStatus);
 }
 catch (Exception ex)
 {
@@ -51,7 +54,7 @@ foreach(Value v in PRs.value)
 {
     PullRequest pr = await azureDevOpsInteraction.GetPullRequestDetailsAsync(Organization, v.pullRequestId);
 
-    string csv = string.Format("{0},{1},{2}\n", v.pullRequestId, pr.lastMergeCommit.comment, v.description);
+    string csv = string.Format("{0},{1},{2},{3}\n", v.pullRequestId, v.description, v.closedDate.ToShortDateString(), pr.lastMergeCommit.comment);
     File.AppendAllText(OutputFilePath, csv);
 }
 

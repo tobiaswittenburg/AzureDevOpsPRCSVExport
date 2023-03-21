@@ -33,8 +33,8 @@ namespace AzureDevOpsListHistoricPRs
         /// <param name="project">The project with the repository.</param>
         /// <param name="RepositoryID">The repository ID. Can be obtained by az repos list --project "PROJECTNAME"</param>
         /// <param name="PAT">The Personal Access Token , from the Azure DevOps UI</param>
-        /// <returns></returns>
-        public async Task<ListOfPullRequests>? GetAllPullRequestsAsync(string organization, string project, string RepositoryID)
+        /// <returns>ListOfPullRequests</returns>
+        public async Task<ListOfPullRequests>? GetAllPullRequestsAsync(string organization, string project, string RepositoryID, string status)
         {
             string responseBody = string.Empty;
 
@@ -50,7 +50,7 @@ namespace AzureDevOpsListHistoricPRs
                             System.Text.ASCIIEncoding.ASCII.GetBytes(
                                 string.Format("{0}:{1}", "", pat))));
                                        
-                    string callURL = string.Format("https://dev.azure.com/{0}/_apis/git/repositories/{1}/pullrequests?searchCriteria.status={2}", organization, RepositoryID, "all");
+                    string callURL = string.Format("https://dev.azure.com/{0}/_apis/git/repositories/{1}/pullrequests?searchCriteria.status={2}", organization, RepositoryID, status);
 
                     using (HttpResponseMessage response = await client.GetAsync(callURL))
                     {
@@ -76,6 +76,13 @@ namespace AzureDevOpsListHistoricPRs
             }            
         }
 
+        /// <summary>
+        /// Retrieves all Pull Requests from a repository
+        /// Documentation: https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/get-pull-requests?view=azure-devops-rest-7.1&tabs=HTTP#pullrequeststatus
+        /// </summary>
+        /// <param name="organization">The Organization where the Project resides in.</param>
+        /// <param name="PRID">The Pull Request ID.</param>
+        /// <returns>PullRequest</returns>
         public async Task<PullRequest> GetPullRequestDetailsAsync(string organization, int PRID)
         {
             string responseBody = string.Empty;
