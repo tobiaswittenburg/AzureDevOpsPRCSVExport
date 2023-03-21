@@ -36,7 +36,7 @@ if (args.Length == 6)
 }
 else 
 {
-    Console.WriteLine("Please use the following order for arguments: PAT, ProjectName, Organization, RepositoryID");
+    Console.WriteLine("Please use the following order for arguments: PAT, ProjectName, Organization, RepositoryID, OutputFilePath, PRStatus");
 }
 
 var azureDevOpsInteraction = new AzDOInteraction(PAT);
