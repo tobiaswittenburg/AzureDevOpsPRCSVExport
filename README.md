@@ -15,3 +15,11 @@ https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/get-pu
 
 How to create PAT in Azure DevOps
 https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows
+
+How to get your Repository ID
+I got mine from the Azuer CLI with 
+  `az repos list --project "PROJECTNAME" `
+There you find an entry "url" that looks like this "https://dev.azure.com/ORGNAME/SOMEGUID/_apis/git/repositories/REPOID
+
+How to find your Org Name
+That is the part after http://dev.azure.com/
