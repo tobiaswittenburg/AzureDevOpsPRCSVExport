@@ -34,10 +34,18 @@ namespace AzureDevOpsListHistoricPRs
         /// <param name="RepositoryID">The repository ID. Can be obtained by az repos list --project "PROJECTNAME"</param>
         /// <param name="PAT">The Personal Access Token , from the Azure DevOps UI</param>
         /// <returns>ListOfPullRequests</returns>
-        public async Task<ListOfPullRequests>? GetAllPullRequestsAsync(string organization, string project, string RepositoryID, string status)
+        public async Task<List<PullRequest>> GetAllPullRequestsAsync(string organization, string project, string RepositoryID, string status)
         {
             string responseBody = string.Empty;
 
+            bool isLastPage = false;
+            int offset = 0;
+            int batchSize = 50;
+            List<PullRequest> pullRequests = new List<PullRequest>();
+
+            while(isLastPage == false)
+            {
+          
             try
             {
                 using (HttpClient client = new HttpClient())
@@ -49,8 +57,11 @@ namespace AzureDevOpsListHistoricPRs
                         Convert.ToBase64String(
                             System.Text.ASCIIEncoding.ASCII.GetBytes(
                                 string.Format("{0}:{1}", "", pat))));
-                                       
-                    string callURL = string.Format("https://dev.azure.com/{0}/_apis/git/repositories/{1}/pullrequests?searchCriteria.status={2}", organization, RepositoryID, status);
+                    
+                    string callURL = string.Format("https://dev.azure.com/{0}/_apis/git/repositories/{1}/pullrequests?searchCriteria.status={2}&$top={3}&$skip={4}&api-version=7.1-preview.1", organization, RepositoryID, status, batchSize, offset); 
+                   
+                    //string callURL = string.Format("https://dev.azure.com/{0}/{1}/_apis/git/repositories/{2}/pullrequests?searchCriteria.status={2}", organization, project, RepositoryID, status);
+                    //string callURL = string.Format("GET https://dev.azure.com/{0}/{1}/_apis/git/repositories/{2}/pullrequests?api-version=7.1-preview.1", organization, project, RepositoryID);
 
                     using (HttpResponseMessage response = await client.GetAsync(callURL))
                     {
@@ -72,8 +83,15 @@ namespace AzureDevOpsListHistoricPRs
             }
             else
             {
-                return ListOfPRs;
-            }            
+                if ((ListOfPRs.count == 0) || (offset > 2500))
+                {
+                    isLastPage = true;
+                }
+                pullRequests.AddRange(ListOfPRs.value);
+                offset += batchSize;
+            }  
+            }          
+            return pullRequests;
         }
 
         /// <summary>
@@ -83,7 +101,7 @@ namespace AzureDevOpsListHistoricPRs
         /// <param name="organization">The Organization where the Project resides in.</param>
         /// <param name="PRID">The Pull Request ID.</param>
         /// <returns>PullRequest</returns>
-        public async Task<PullRequest> GetPullRequestDetailsAsync(string organization, int PRID)
+        public async Task<SinglePullRequest> GetPullRequestDetailsAsync(string organization, int PRID)
         {
             string responseBody = string.Empty;
 
@@ -114,7 +132,7 @@ namespace AzureDevOpsListHistoricPRs
                 Console.WriteLine(ex.ToString());
             }
 
-            var pullRequest = JsonSerializer.Deserialize<PullRequest>(responseBody);
+            var pullRequest = JsonSerializer.Deserialize<SinglePullRequest>(responseBody);
 
             if (pullRequest == null)
             {

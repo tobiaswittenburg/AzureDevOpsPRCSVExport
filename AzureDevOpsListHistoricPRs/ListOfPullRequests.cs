@@ -12,11 +12,11 @@ namespace AzureDevOpsListHistoricPRs
     /// </summary>
     public class ListOfPullRequests
     {
-        public Value[] value { get; set; }
+        public PullRequest[] value { get; set; }
         public int count { get; set; }
     }
 
-    public class Value
+    public class PullRequest
     {
         public Repository repository { get; set; }
         public int pullRequestId { get; set; }

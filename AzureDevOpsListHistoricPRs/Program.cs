@@ -16,7 +16,7 @@ string RepositoryID = string.Empty;
 string OutputFilePath = string.Empty;
 string PRStatus = string.Empty;
 
-var PRs = new ListOfPullRequests();
+List<PullRequest> PRs = null;
 
 if (args.Length == 6)
 {
@@ -50,11 +50,24 @@ catch (Exception ex)
     Console.WriteLine("Error: " + ex.Message);
 }
 
-foreach(Value v in PRs.value)
+foreach(PullRequest pullRequest in PRs)
 {
-    PullRequest pr = await azureDevOpsInteraction.GetPullRequestDetailsAsync(Organization, v.pullRequestId);
+    SinglePullRequest singlePR = await azureDevOpsInteraction.GetPullRequestDetailsAsync(Organization, pullRequest.pullRequestId);
+    
+    string currentDescription = string.Empty;
+    string lastMergeCommitComment = string.Empty;
+    if (pullRequest.description != null)
+    {
+        currentDescription = pullRequest.description.Replace(System.Environment.NewLine, "").Replace("\n"," ").Replace("\r"," ").Replace(","," ");
+    }
 
-    string csv = string.Format("{0},{1},{2},{3}\n", v.pullRequestId, v.description, v.closedDate.ToShortDateString(), pr.lastMergeCommit.comment);
+    if ((singlePR != null) && (singlePR.lastMergeCommit != null) && (singlePR.lastMergeCommit.comment != null))
+    {
+        lastMergeCommitComment = singlePR.lastMergeCommit.comment.Replace(System.Environment.NewLine, "").Replace("\n", " ").Replace("\r", " ").Replace(",", " ");
+    }
+
+
+    string csv = string.Format("{0},{1},{2},{3}\n", pullRequest.pullRequestId, currentDescription, lastMergeCommitComment, pullRequest.closedDate.ToShortDateString());
     File.AppendAllText(OutputFilePath, csv);
 }
 
