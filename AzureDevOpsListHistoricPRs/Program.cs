@@ -66,8 +66,28 @@ foreach(PullRequest pullRequest in PRs)
         lastMergeCommitComment = singlePR.lastMergeCommit.comment.Replace(System.Environment.NewLine, "").Replace("\n", " ").Replace("\r", " ").Replace(",", " ");
     }
 
+    ListOfPullRequestThreads threads = await azureDevOpsInteraction.GetPullRequestThreadsAsync(Organization, ProjectName, RepositoryID, pullRequest.pullRequestId);
 
-    string csv = string.Format("{0},{1},{2},{3}\n", pullRequest.pullRequestId, currentDescription, lastMergeCommitComment, pullRequest.closedDate.ToShortDateString());
+    string commentContent = string.Empty;
+    if (threads.count > 0)
+    {
+        foreach (PullRequestThread thread in threads.value)
+        {
+            if (thread.comments.Length > 0)
+            {
+                foreach (Comment comment in thread.comments)
+                {
+                    if (comment.content != null)
+                    {
+                        commentContent += (comment.author.ToString() + ": " + comment.content.Replace(System.Environment.NewLine, "").Replace("\n", " ").Replace("\r", " ").Replace(",", " "));
+                    }
+                }
+            }
+        }
+    }
+
+
+    string csv = string.Format("{0},{1},{2},{3}\n", pullRequest.pullRequestId, currentDescription, commentContent, pullRequest.closedDate.ToShortDateString());
     File.AppendAllText(OutputFilePath, csv);
 }
 

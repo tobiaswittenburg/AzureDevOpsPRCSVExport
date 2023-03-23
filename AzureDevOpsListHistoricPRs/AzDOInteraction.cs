@@ -143,5 +143,49 @@ namespace AzureDevOpsListHistoricPRs
                 return pullRequest;
             }     
     }
+
+    public async Task<ListOfPullRequestThreads> GetPullRequestThreadsAsync(string organization, string project, string repositoryID, int PRID)
+    {
+        string responseBody = string.Empty;
+
+          try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                        Convert.ToBase64String(
+                            System.Text.ASCIIEncoding.ASCII.GetBytes(
+                                string.Format("{0}:{1}", "", pat))));
+                                                          
+                    string callURL = string.Format("https://dev.azure.com/{0}/{1}/_apis/git/repositories/{2}/pullRequests/{3}/threads?api-version=7.0", organization, project, repositoryID, PRID);
+
+                    using (HttpResponseMessage response = await client.GetAsync(callURL))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        responseBody = await response.Content.ReadAsStringAsync();                  
+                    }                
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            var pullRequest = JsonSerializer.Deserialize<ListOfPullRequestThreads>(responseBody);
+
+            if (pullRequest == null)
+            {
+                throw new Exception("Could not deserialize the response from Azure DevOps.");
+            }
+            else
+            {
+                return pullRequest;
+            }    
+
+    }
 }
 }
+
